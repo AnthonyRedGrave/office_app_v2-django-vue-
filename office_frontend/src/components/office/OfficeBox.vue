@@ -1,7 +1,7 @@
 <template>
-      <div class="box">
+      <div class="box" @click="showDetailOffice(office.id)">
           <div class="box__inner">
-              {{office.address}}
+              {{office.get_full_title}}
           </div>
           
       </div>
@@ -15,6 +15,11 @@ export default {
         office:{
             type: Object,
             default: ()=>{}
+        }
+    },
+    methods:{
+        showDetailOffice(id){
+            this.$emit('showDetailOffice', id)
         }
     }
 }
