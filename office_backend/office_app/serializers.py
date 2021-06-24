@@ -1,7 +1,14 @@
+from re import search
 from rest_framework import serializers
 from .models import *
 
+class PlaceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Place
+        fields = '__all__'
+
 class RoomSerializer(serializers.ModelSerializer):
+    places = PlaceSerializer(many=True)
     class Meta:
         model = Room
         fields = '__all__'

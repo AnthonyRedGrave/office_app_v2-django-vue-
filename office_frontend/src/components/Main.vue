@@ -167,7 +167,6 @@ export default {
         width: 100%;
         top: 250px;
         opacity: 0;
-        
         transition: all 0.3s ease-in-out;
     }
     
@@ -190,15 +189,11 @@ export default {
 
     .v-office-box, .v-main__actions{
         display: flex;
-        /* flex-direction: row; */
-        /* align-items: center; */
         justify-content: space-between;
         margin: 0 auto;
         margin-top: 20px;
         width: 700px;
         flex-flow: wrap;
-        
-        /* width: 300px; */
     }
 
     .v-filter-box{

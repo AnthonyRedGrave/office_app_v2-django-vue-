@@ -2,6 +2,8 @@
       <div class="box" @click="showDetailOffice(office.id)">
           <div class="box__inner">
               {{office.get_full_title}}
+              <br>
+              {{office.title}}
           </div>
           
       </div>
@@ -26,12 +28,18 @@ export default {
 </script>
 
 <style>
+    .action_box{
+        width: 200px;
+        height: 50px;
+    }
     .box, .action_box{
         border: 1px solid black;
         text-align: center;
         margin-bottom: 20px;
+    }
+    .box{
         width: 200px;
-        height: 50px;
+        height: 75px;
     }
     .box:hover{
         transition: all 0.5s ease;
