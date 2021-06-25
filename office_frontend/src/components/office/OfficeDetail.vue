@@ -1,5 +1,9 @@
 <template>
+
   <div class="v-office-detail">
+    <place-popup v-if="isInfoPopupVisible" @closePopup = "closePopup">{{place_info}}</place-popup>
+
+    
     <div class="back-to-main-box">
       <router-link to="/">На главную</router-link>
     </div>
@@ -41,26 +45,24 @@
     <div class="rooms_wrapper">
       <div class="rooms_box">
       <div class="rooms_list">
-        <div class="box" v-for="room in office_info.rooms" :key="room.id" @click="showPlaces(room.id)">
+        <div class="box" v-for="room in office_info.rooms" :key="room.id" @click="showPlaces(room.id, $event)">
           <div class="box__inner">
               Кабинет №{{room.title_number}}
           </div>
       </div>
     </div>
     </div>
+    <hr class="hr_for_places" style="display: none">
     <place-box 
     v-for="room in office_info.rooms"
     :key="room.id"
     :room_info="room"
-    
+    @showPopup = "showPopup"
     />
     </div>
     <div class="hr_rooms_box">
             <hr>
     </div>
-    
-    
-    
       <br>
       <div class="office_image_wrapper">
         <div class="images_list">
@@ -70,19 +72,22 @@
           <img class="office_image" v-bind:src="office_info.image_url">
           <img class="office_image" v-bind:src="office_info.image_url">
         </div>
-        
       </div>
       
+      
   </div>
+  
 </template>
 
 <script>
+import PlacePopup from '../popups/PlacePopup.vue'
 import axios from 'axios'
 import PlaceBox from './PlaceBox.vue'
 export default {
   name:'OfficeDetail',
   data(){
     return{
+      isInfoPopupVisible: false,
       office_info: {
         title: null,
         address: null,
@@ -92,12 +97,14 @@ export default {
         places_count: null,
         rooms: {},
         places: [],
-        placesForPlaceBox: {}
+        placesForPlaceBox: {},
+        place_info: {}
       }
     }
   },
   components:{
-    PlaceBox
+    PlaceBox,
+    PlacePopup
   },
   created(){
         this.get_office_info()
@@ -119,10 +126,8 @@ export default {
           this.office_info.places.push({
             id: responce.data.rooms[i].id,
             places: responce.data.rooms[i].places
-          })
-          
+          })     
         }
-        // this.office_info.places = responce.data.places
       })
     },
     back_to_main(){
@@ -134,12 +139,19 @@ export default {
       let hr = document.querySelector('.hr_rooms_box')
       let images_show_btn = document.querySelector('.images_show_btn')
       let images = document.querySelector('.office_image_wrapper')
+      let placeBoxes = document.querySelectorAll('.v-place-box')
+      let hr_for_places = document.querySelector('.hr_for_places')
+      hr_for_places.style.display = 'none'
+
+      placeBoxes.forEach(item =>{
+        item.style.display = 'none'
+      })
       if(elem.style.opacity == '0' | elem.style.opacity == ''){
-        hr.style.top = '520px'
+        hr.style.top = '680px'
         hr.style.opacity = '100'
         
-        images_show_btn.style.top = '300px'
-        images.style.top = '800px'
+        images_show_btn.style.top = '460px'
+        images.style.top = '900px'
 
         elem.style.top = '10px'
         elem.style.opacity = '100'
@@ -158,43 +170,78 @@ export default {
     showImages(){
       let elem = document.querySelector('.office_image_wrapper')
       let images_show_btn = document.querySelector('.images_show_btn')
-      if(elem.style.opacity == '0' | elem.style.opacity == '' && images_show_btn.style.top !== '300px'){
-        elem.style.top = '500px'
-        elem.style.opacity = '100'
-      }
-      else if(elem.style.opacity == '100' && elem.style.top !== '800px'){
-        elem.style.opacity = '0' 
+      if((elem.style.opacity == '' && images_show_btn.style.top == '') || (elem.style.opacity == '0' && images_show_btn.style.top == '') || (elem.style.opacity == '0' && images_show_btn.style.top == '20px')){
+
+        elem.style.opacity = '100' 
         elem.style.top = '480px'
       }
-      else if(elem.style.opacity == '' && images_show_btn.style.top == '300px'){
+      else if((elem.style.opacity == '100' && images_show_btn.style.top == '')||(elem.style.opacity == '100' && images_show_btn.style.top == '20px')){
 
-        elem.style.top = '800px'
+        elem.style.opacity = '0' 
+        elem.style.top = '460px'
+      }
+      else if((elem.style.opacity == '' && images_show_btn.style.top == '460px') || (elem.style.opacity == '0' && images_show_btn.style.top == '460px')){
+
+        elem.style.top = '1000px'
         elem.style.opacity = '100'
       }
-      else if(elem.style.opacity == '100' && elem.style.top == '800px'){
+      else if((elem.style.opacity == '100' && images_show_btn.style.top == '1000px') ||(elem.style.opacity == '100' && images_show_btn.style.top == '460px')){
+
         elem.style.opacity = '0' 
-        elem.style.top = '800px'
+        elem.style.top = '900px'
       }
-      else if(elem.style.opacity == '0' && images_show_btn.style.top == '300px'){
+      else if(elem.style.opacity == '0' && images_show_btn.style.top == '460px'){
+
         elem.style.top = '800px'
         elem.style.opacity = '100'
       }
     },
     showPlaces(room_id){
-      console.log(room_id)
-      let clickedRoom = this.office_info.places.find(item=>item.id == room_id)
+      if (document.querySelector('.rooms_box').style.opacity !== '0'){
+        let className = '#room_info_' + room_id
+        let placeBox = document.querySelector(className)
+        let hr_for_places = document.querySelector('.hr_for_places')
+        hr_for_places.style.display = 'block'
+        let placeBoxes = document.querySelectorAll('.room_info')
+
+        placeBoxes.forEach(item =>{
+          if (item !== placeBox){
+            item.style.display = 'none'
+          }
+        })
+
+        placeBox.style.display = 'block'
+        let clickedRoom = this.office_info.places.find(item=>item.id == room_id)
+        
+        this.placesForPlaceBox = clickedRoom
+      }
       
-      this.placesForPlaceBox = clickedRoom
+    },
+    showPopup(place){
+      this.place_info = place
+      this.isInfoPopupVisible =  true
+    },
+    closePopup(){
+      this.isInfoPopupVisible =  false
     }
   }
 }
 </script>
 
 <style scoped>
+    *{
+      cursor: default
+    }
+
+    .actions{
+      margin-bottom: 0px;
+      height: 50px;
+    }
     .images_show_btn{
       position: relative;
       transition: all 0.3s ease-in-out;
       top: 20px;
+      z-index: 3;
     }
 
     .hr_rooms_box{
@@ -221,7 +268,7 @@ export default {
     .rooms_list{
       margin-top: 20px;
       display: flex;
-      
+      z-index: 1;
       justify-content: space-between;
       /* opacity: 100; */
       width: 100%;
